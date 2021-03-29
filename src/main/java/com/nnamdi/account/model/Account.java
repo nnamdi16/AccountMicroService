@@ -17,6 +17,7 @@ import java.util.Set;
 })
 public class Account extends RepresentationModel<Account> {
 
+    @Column(name = "account_id")
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long accountId;
 
     @NotBlank
