@@ -4,6 +4,8 @@ import com.nnamdi.account.exceptions.AccountNotFoundException;
 import com.nnamdi.account.model.Account;
 import com.nnamdi.account.model.AccountModelAssembler;
 import com.nnamdi.account.security.jwt.JwtUtils;
+import com.nnamdi.account.service.RabbitMqSender;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -29,14 +31,19 @@ public class AccountController {
     @Autowired
     JwtUtils jwtUtils;
 
+    private RabbitMqSender rabbitMqSender;
+    private RabbitTemplate rabbitTemplate;
+
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
     private final AccountModelAssembler accountModelAssembler;
 
-    public AccountController(AccountRepository accountRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public AccountController(AccountRepository accountRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder, RabbitMqSender rabbitMqSender, RabbitTemplate rabbitTemplate) {
         this.accountRepository = accountRepository;
         this.roleRepository = roleRepository;
         this.accountModelAssembler = accountModelAssembler;
+        this.rabbitMqSender = rabbitMqSender;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
 
@@ -45,9 +52,12 @@ public class AccountController {
     //Aggregate root
     //tag::get-aggregate-root[]
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public CollectionModel<EntityModel<Account>> all() {
         List<EntityModel<Account>> accounts = accountRepository.findAll().stream().map(accountModelAssembler::toModel).collect(Collectors.toList());
+        System.out.println(accounts);
+
+        rabbitMqSender.send("accounts are for developers who like to work");
         return CollectionModel.of(accounts, WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(AccountController.class).all()).withSelfRel());
     }
 
@@ -56,9 +66,10 @@ public class AccountController {
     //Single item
 
     @GetMapping("/account/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public EntityModel<Account> getAccount(@PathVariable Long id){
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+//        rabbitMqSender.send(account);
         return accountModelAssembler.toModel(account);
     }
 
