@@ -26,6 +26,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 //	compile 'com.auth0:java-jwt:3.14.0'
 	compile 'io.jsonwebtoken:jjwt:0.9.1'
+	compile 'org.springframework.boot:spring-boot-starter-amqp:2.4.3'
 }
 
 test {
