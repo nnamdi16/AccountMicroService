@@ -1,13 +1,13 @@
 package com.nnamdi.account.controller;
 
-import com.nnamdi.account.model.Account;
-import com.nnamdi.account.model.AccountModelAssembler;
-import com.nnamdi.account.model.Role;
-import com.nnamdi.account.model.UserRole;
+import com.nnamdi.account.model.*;
 import com.nnamdi.account.payload.request.LoginRequest;
 import com.nnamdi.account.payload.request.SignUpRequest;
 import com.nnamdi.account.payload.response.JwtResponse;
 import com.nnamdi.account.payload.response.MessageResponse;
+import com.nnamdi.account.repository.AccountRepository;
+import com.nnamdi.account.repository.RoleRepository;
+import com.nnamdi.account.repository.UserRoleRepository;
 import com.nnamdi.account.security.jwt.JwtUtils;
 import com.nnamdi.account.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +39,14 @@ public class AuthController {
     JwtUtils jwtUtils;
 
     private final AccountRepository accountRepository;
+    private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
     private final AccountModelAssembler accountModelAssembler;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public AuthController(AccountRepository accountRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public AuthController(AccountRepository accountRepository, UserRoleRepository userRoleRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.accountRepository = accountRepository;
+        this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
         this.accountModelAssembler = accountModelAssembler;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -64,24 +66,24 @@ public class AuthController {
         }
         Account registerAccount = new Account(signUpRequest.getUsername(),signUpRequest.getName(), signUpRequest.getAddress(), signUpRequest.getPhoneNumber(), signUpRequest.getEmail(),bCryptPasswordEncoder.encode(signUpRequest.getPassword()) );
         Set<String> strRoles = signUpRequest.getRole();
-        Set<Role> roles = new HashSet<>();
+        Set<Roles> roles = new HashSet<>();
 
         if (strRoles == null) {
-            Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
+            Roles userUserRoles = roleRepository.findByName(RolesEnum.ROLE_USER)
                     .orElseThrow(()-> new RuntimeException("Error: Role does not exist"));
-            roles.add(userRole);
+            roles.add(userUserRoles);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleRepository.findByName(UserRole.ROLE_ADMIN)
+                        Roles adminUserRoles = roleRepository.findRolesByName(RolesEnum.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found. "));
-                        roles.add(adminRole);
+                        roles.add(adminUserRoles);
                         break;
 
                     default:
-                        Role userRole = roleRepository.findByName(UserRole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error:Role is not found"));
-                        roles.add(userRole);
+                        Roles userUserRoles = roleRepository.findRolesByName(RolesEnum.ROLE_USER).orElseThrow(() -> new RuntimeException("Error:Role is not found"));
+                        roles.add(userUserRoles);
                 }
             });
         }
@@ -101,7 +103,7 @@ public class AuthController {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item->item.getAuthority())
                 .collect(Collectors.toList());
-
+        System.out.println(roles);
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
