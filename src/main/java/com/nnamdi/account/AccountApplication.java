@@ -33,6 +33,9 @@ public class AccountApplication {
 	@Value("${spring.rabbitmq.password}")
 	private String password;
 
+	@Value("${rabbitmq.url}")
+	private String rabbitMQUri;
+
 
 
 	@Bean
@@ -43,8 +46,11 @@ public class AccountApplication {
 	@Bean
 	CachingConnectionFactory connectionFactory() {
 		CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(host);
-		cachingConnectionFactory.setUsername(username);
-		cachingConnectionFactory.setPassword(password);
+		cachingConnectionFactory.setUri(rabbitMQUri);
+		cachingConnectionFactory.setRequestedHeartBeat(30);
+		cachingConnectionFactory.setConnectionTimeout(30);
+//		cachingConnectionFactory.setUsername(username);
+//		cachingConnectionFactory.setPassword(password);
 
 		return cachingConnectionFactory;
 	}

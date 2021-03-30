@@ -8,6 +8,7 @@ import com.nnamdi.account.payload.response.MessageResponse;
 import com.nnamdi.account.repository.AccountRepository;
 import com.nnamdi.account.repository.RoleRepository;
 import com.nnamdi.account.repository.UserRoleRepository;
+import com.nnamdi.account.service.RabbitMqSender;
 import com.nnamdi.account.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
@@ -27,16 +28,17 @@ public class AuthController {
 
     @Autowired
     UserService userService;
+    private RabbitMqSender rabbitMqSender;
 
     private final AccountRepository accountRepository;
 
     private final AccountModelAssembler accountModelAssembler;
 
 
-    public AuthController(AccountRepository accountRepository, UserRoleRepository userRoleRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public AuthController(AccountRepository accountRepository, UserRoleRepository userRoleRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder, RabbitMqSender rabbitMqSender) {
         this.accountRepository = accountRepository;
         this.accountModelAssembler = accountModelAssembler;
-
+        this.rabbitMqSender = rabbitMqSender;
     }
 
 
@@ -54,6 +56,7 @@ public class AuthController {
 
         Account userAccount = userService.signup(signUpRequest);
         accountRepository.save(userAccount);
+        rabbitMqSender.send(userAccount.getEmail());
         EntityModel<Account> entityModel = accountModelAssembler.toModel(accountRepository.save(userAccount));
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
