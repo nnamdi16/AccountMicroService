@@ -1,14 +1,12 @@
 package com.nnamdi.account.config;
 
-import com.nnamdi.account.security.jwt.AuthEntryPointJwt;
 import com.nnamdi.account.security.jwt.AuthTokenFilter;
-import com.nnamdi.account.security.jwt.JwtTokenFilterConfigurer;
-import com.nnamdi.account.security.jwt.JwtTokenProvider;
 import com.nnamdi.account.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -23,24 +21,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+     UserDetailsServiceImpl userDetailsService;
 
-//    @Autowired
-//     UserDetailsServiceImpl userDetailsService;
-//
-//    @Autowired
-//    private AuthEntryPointJwt unauthorizedHandler;
-
-//    @Bean
-//    public AuthTokenFilter authenticationJwtTokenFilter() {
-//        return new AuthTokenFilter();
-//    }
 
     @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
+    }
+
     @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
@@ -66,14 +60,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // If a user try to access a resource without having enough permissions
         http.exceptionHandling().accessDeniedPage("/api/auth/login");
 
-//                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-//                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-//                .antMatchers("/api/accounts/**").permitAll()
-//                .anyRequest().authenticated();
 
-//        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
@@ -92,4 +80,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/h2-console/**/**");;
     }
 
+
+    @Override
+    @Bean
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
+    }
 }
