@@ -3,6 +3,9 @@ package com.nnamdi.account.controller;
 import com.nnamdi.account.exceptions.AccountNotFoundException;
 import com.nnamdi.account.model.Account;
 import com.nnamdi.account.model.AccountModelAssembler;
+import com.nnamdi.account.repository.AccountRepository;
+import com.nnamdi.account.repository.RoleRepository;
+import com.nnamdi.account.repository.UserRoleRepository;
 import com.nnamdi.account.security.jwt.JwtUtils;
 import com.nnamdi.account.service.RabbitMqSender;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -35,15 +38,17 @@ public class AccountController {
     private RabbitTemplate rabbitTemplate;
 
     private final AccountRepository accountRepository;
-    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final AccountModelAssembler accountModelAssembler;
+    private final RoleRepository roleRepository;
 
-    public AccountController(AccountRepository accountRepository, RoleRepository roleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder, RabbitMqSender rabbitMqSender, RabbitTemplate rabbitTemplate) {
+    public AccountController(AccountRepository accountRepository, UserRoleRepository userRoleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder, RabbitMqSender rabbitMqSender, RabbitTemplate rabbitTemplate, RoleRepository roleRepository) {
         this.accountRepository = accountRepository;
-        this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
         this.accountModelAssembler = accountModelAssembler;
         this.rabbitMqSender = rabbitMqSender;
         this.rabbitTemplate = rabbitTemplate;
+        this.roleRepository = roleRepository;
     }
 
 
@@ -66,7 +71,7 @@ public class AccountController {
     //Single item
 
     @GetMapping("/account/{id}")
-//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public EntityModel<Account> getAccount(@PathVariable Long id){
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
 //        rabbitMqSender.send(account);
