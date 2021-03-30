@@ -14,19 +14,25 @@ CREATE TABLE IF NOT EXISTS Account  (
 
 # DROP TABLE IF EXISTS Roles;
 CREATE TABLE IF NOT EXISTS Roles (
-                                     role_id INT  PRIMARY KEY AUTO_INCREMENT,
-                                     name VARCHAR(500) NOT NULL
+                                     role_id int(11) NOT NULL AUTO_INCREMENT,
+                                     name VARCHAR(500) NOT NULL,
+                                     PRIMARY KEY (role_id)
 
 );
 
+INSERT INTO Roles(name) VALUES('ROLE_USER');
+INSERT INTO Roles(name) VALUES('ROLE_ADMIN');
 # DROP TABLE IF EXISTS user_role;
-CREATE TABLE IF NOT EXISTS UserRole (
-                                        user_role_id INT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS user_role (
+                                        user_role_id int(11) NOT NULL AUTO_INCREMENT,
                                         account_id INT NOT NULL ,
                                         role_id INT(6) NOT NULL,
                                         FOREIGN KEY (account_id) REFERENCES Account(account_id),
-                                        FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+                                        FOREIGN KEY (role_id) REFERENCES Roles(role_id),
+                                        PRIMARY KEY (user_role_id)
 
 
 );
+
+
 
