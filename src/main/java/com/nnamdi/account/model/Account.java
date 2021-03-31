@@ -17,28 +17,38 @@ import java.util.Set;
 })
 public class Account extends RepresentationModel<Account> {
 
+    @Column(name = "account_id")
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long accountId;
 
     @NotBlank
     @Size(max = 20)
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "address")
     private String address;
+
+    @Column(name = "phone_number")
+
     private String phoneNumber;
 
     @NotBlank
     @Size(max = 50)
     @Email
+    @Column(name = "email")
     private String email;
 
     @NotBlank
-    @Size(max = 120)
+    @Column(name = "password")
+    @Size(min = 8, message = "Minimum password length: 8 characters")
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "account_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    private Set<Roles> userRoles = new HashSet<>();
 
 
     public Account() {
@@ -141,11 +151,11 @@ public class Account extends RepresentationModel<Account> {
     }
 
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Set<Roles> getRoles() {
+        return userRoles;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRoles(Set<Roles> userRoles) {
+        this.userRoles = userRoles;
     }
 }
