@@ -49,11 +49,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+
         //Entry points
         http.authorizeRequests()//
                 .antMatchers("/api/auth/**").permitAll()//
                 .antMatchers("/api/accounts/roles").permitAll()//
                 .antMatchers("/api/accounts/ban/**").permitAll()//
+                .antMatchers("/**").permitAll()
+
                 // Disallow everything else..
                 .anyRequest().authenticated();
 
@@ -64,21 +67,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
-//    @Override
-//    public void configure(WebSecurity web) throws Exception {
-//        // Allow swagger to be accessed without authentication
-//        web.ignoring().antMatchers("/v2/api-docs")//
-//                .antMatchers("/swagger-resources/**")//
-//                .antMatchers("/swagger-ui.html")//
-//                .antMatchers("/configuration/**")//
-//                .antMatchers("/webjars/**")//
-//                .antMatchers("/public")
-//
-//                // Un-secure H2 Database (for testing purposes, H2 console shouldn't be unprotected in production)
-//                .and()
-//                .ignoring()
-//                .antMatchers("/h2-console/**/**");;
-//    }
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+//         Allow swagger to be accessed without authentication
+        web.ignoring().antMatchers("/v2/api-docs")//
+                .antMatchers("/swagger-resources/**")//
+                .antMatchers("/swagger-ui.html")//
+                .antMatchers("/configuration/**")//
+                .antMatchers("/webjars/**")//
+                .antMatchers("/public")
+
+                // Un-secure H2 Database (for testing purposes, H2 console shouldn't be unprotected in production)
+                .and()
+                .ignoring()
+                .antMatchers("/h2-console/**/**");;
+    }
 
 
     @Override
