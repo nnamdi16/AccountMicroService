@@ -1,4 +1,4 @@
-# NOTIFICATION MICROSERVICE
+# ACCOUNT MICROSERVICE
 
 This microservice is in charge of managing the accounts
 
@@ -9,7 +9,7 @@ This application is packaged as a war which has Tomcat 8 embedded. No Tomcat or 
 * Clone this repository
 * Create Mysql database
   
-    - run `com/nnamdi/transaction/data/UserRoles.sql`
+    - run `com/nnamdi/account/data/userRoles.sql`
     
 * Make sure you are using JDK 1.8 and Gradle 5.x
 * Change mysql username and password as per your installation
@@ -44,19 +44,26 @@ Here are some endpoints you can call:
 
 ```
 http://localhost:9000/api/auth/signup
+
+https://reloadly-account-app.herokuapp.com/api/auth/signup
 ```
 
 ### To login to the account
 
 ```
 http://localhost:9000/api/auth/login
+
+https://reloadly-account-app.herokuapp.com/api/auth/login
 ```
 
 ### Get list of accounts or account info
 
 ```
-http://localhost:9000/api/accounts/all
 http://localhost:9000/account/{id}
+http://localhost:9000/api/accounts/all
+
+https://reloadly-account-app.herokuapp.com/account/{id}
+https://reloadly-account-app.herokuapp.com/api/accounts/all
 
 ```
 
