@@ -1,13 +1,26 @@
 package com.nnamdi.account.payload.response;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
 public class JwtResponse {
+    @ApiModelProperty(position = 0)
     private String token;
+
+    @ApiModelProperty(position = 1)
     private String type = "Bearer";
+
+    @ApiModelProperty(position = 2)
     private Long id;
+
+    @ApiModelProperty(position = 3)
     private String username;
+
+    @ApiModelProperty(position = 3)
     private String email;
+
+    @ApiModelProperty(position = 4)
     private List<String> roles;
 
     public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
