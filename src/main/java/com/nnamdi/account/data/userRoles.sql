@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS  AccountMicroservice;
 # USE AccountMicroservice;
 # DROP TABLE IF EXISTS Account;
-CREATE TABLE IF NOT EXISTS Account  (
+CREATE TABLE IF NOT EXISTS account  (
                                         account_id INT PRIMARY KEY AUTO_INCREMENT,
                                         name VARCHAR(500) NOT NULL,
                                         address VARCHAR(5000) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS Account  (
 );
 
 # DROP TABLE IF EXISTS Roles;
-CREATE TABLE IF NOT EXISTS Roles (
+CREATE TABLE IF NOT EXISTS roles (
                                      role_id int(11) NOT NULL AUTO_INCREMENT,
                                      name VARCHAR(500) NOT NULL,
                                      PRIMARY KEY (role_id)

@@ -7,7 +7,8 @@ import com.nnamdi.account.repository.AccountRepository;
 import com.nnamdi.account.repository.RoleRepository;
 import com.nnamdi.account.repository.UserRoleRepository;
 import com.nnamdi.account.security.jwt.JwtUtils;
-import com.nnamdi.account.service.RabbitMqSender;
+import com.nnamdi.account.service.AccountService;
+//import com.nnamdi.account.service.RabbitMqSender;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -32,9 +33,12 @@ public class AccountController {
     AuthenticationManager authenticationManager;
 
     @Autowired
+    AccountService accountService;
+
+    @Autowired
     JwtUtils jwtUtils;
 
-    private RabbitMqSender rabbitMqSender;
+//    private RabbitMqSender rabbitMqSender;
     private RabbitTemplate rabbitTemplate;
 
     private final AccountRepository accountRepository;
@@ -42,12 +46,12 @@ public class AccountController {
     private final AccountModelAssembler accountModelAssembler;
     private final RoleRepository roleRepository;
 
-    public AccountController(AccountRepository accountRepository, UserRoleRepository userRoleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder, RabbitMqSender rabbitMqSender, RabbitTemplate rabbitTemplate, RoleRepository roleRepository) {
+    public AccountController(AccountRepository accountRepository, UserRoleRepository userRoleRepository, AccountModelAssembler accountModelAssembler, BCryptPasswordEncoder bCryptPasswordEncoder, RoleRepository roleRepository) {
         this.accountRepository = accountRepository;
         this.userRoleRepository = userRoleRepository;
         this.accountModelAssembler = accountModelAssembler;
-        this.rabbitMqSender = rabbitMqSender;
-        this.rabbitTemplate = rabbitTemplate;
+//        this.rabbitMqSender = rabbitMqSender;
+//        this.rabbitTemplate = rabbitTemplate;
         this.roleRepository = roleRepository;
     }
 
@@ -62,7 +66,7 @@ public class AccountController {
         List<EntityModel<Account>> accounts = accountRepository.findAll().stream().map(accountModelAssembler::toModel).collect(Collectors.toList());
         System.out.println(accounts);
 
-        rabbitMqSender.send("accounts are for developers who like to work");
+//        rabbitMqSender.send("accounts are for developers who like to work");
         return CollectionModel.of(accounts, WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(AccountController.class).all()).withSelfRel());
     }
 
@@ -83,18 +87,7 @@ public class AccountController {
     @PutMapping("/account/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateAccount(@RequestBody Account account, @PathVariable Long id) {
-        Account updateAccount = accountRepository.findById(id)
-                .map(userAccount ->{
-                    userAccount.setAddress(account.getAddress());
-                    userAccount.setEmail(account.getEmail());
-                    userAccount.setName(account.getName());
-                    userAccount.setPassword(account.getPassword());
-                    userAccount.setPhoneNumber(account.getPhoneNumber());
-                    return accountRepository.save(userAccount);
-                })    .orElseGet(() -> {
-                    account.setAccountId(id);
-                    return accountRepository.save(account);
-                });
+      Account updateAccount = accountService.updateAccount(account,id);
         EntityModel<Account> entityModel = accountModelAssembler.toModel(updateAccount);
         return  ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }

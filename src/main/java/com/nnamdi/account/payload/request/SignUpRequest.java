@@ -1,5 +1,7 @@
 package com.nnamdi.account.payload.request;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -8,20 +10,31 @@ import java.util.Set;
 public class SignUpRequest {
     @NotBlank
     @Size(min = 3, max = 20)
+    @ApiModelProperty(position = 0)
     private String username;
 
 
     @NotBlank
     @Size(max = 50)
     @Email
+    @ApiModelProperty(position = 1,dataType = "String",required = true)
     private String email;
 
-    private String address;
-    private Set<String> role;
+    @ApiModelProperty(position = 2,dataType = "String",required = true)
     private String name;
+
+    @ApiModelProperty(position = 3, dataType = "String",required = true)
     private String phoneNumber;
+
+    @ApiModelProperty(position = 4,dataType = "String", required = true)
+    private String address;
+
+    @ApiModelProperty(position = 5, dataType = "Set<String>")
+    private Set<String> role;
+
     @NotBlank
     @Size(min = 6, max = 40)
+    @ApiModelProperty(position = 6, dataType = "String", required = true)
     private String password;
 
     public String getAddress() {
